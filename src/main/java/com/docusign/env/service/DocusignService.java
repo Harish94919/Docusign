@@ -107,7 +107,6 @@ public class DocusignService {
         }
     }
 
-    // ✅ FINAL: Only return document if envelope is completed
     public byte[] getCompletedDocument(String envelopeId) throws Exception {
         ApiClient apiClient = new ApiClient(basePath);
         apiClient.setOAuthBasePath(authServer);
@@ -118,18 +117,15 @@ public class DocusignService {
 
         OAuth.UserInfo userInfo = apiClient.getUserInfo(accessToken);
         String accountId = userInfo.getAccounts().get(0).getAccountId();
+
         apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
 
         EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
 
-        // 🔍 Check if envelope is completed before returning document
-        Envelope envelope = envelopesApi.getEnvelope(accountId, envelopeId);
-        if (!"completed".equalsIgnoreCase(envelope.getStatus())) {
-            throw new IllegalStateException("Document is not available until all recipients have signed.");
-        }
+        // Usually, the combined completed document has id "combined"
+        String documentId = "combined";
 
-        // ✅ Only now fetch the combined document
-        return envelopesApi.getDocument(accountId, envelopeId, "combined");
+        return envelopesApi.getDocument(accountId, envelopeId, documentId);
     }
 
     private String getFileExtension(String filename) {
