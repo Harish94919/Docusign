@@ -43,16 +43,19 @@ public class EnvelopeController {
         }
     }
 
+    // ✅ Updated method with status validation before download
     @GetMapping(value = "/{envelopeId}/document", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> getCompletedDocument(@PathVariable String envelopeId) {
         try {
             byte[] documentBytes = docusignService.getCompletedDocument(envelopeId);
-
             return ResponseEntity.ok()
                     .header("Content-Disposition", "attachment; filename=\"completed_document.pdf\"")
                     .body(documentBytes);
-
+        } catch (IllegalStateException e) {
+            // ⛔ Not signed yet
+            return ResponseEntity.status(409).build(); // 409 Conflict
         } catch (Exception e) {
+            // 🛑 Other errors
             return ResponseEntity.status(500).build();
         }
     }
