@@ -34,10 +34,10 @@ public class DocusignService {
 
     public String sendEnvelope(String signerEmail, String signerName, MultipartFile file) {
         try {
-            ApiClient apiClient = new ApiClient(basePath);
-            apiClient.setOAuthBasePath(authServer);
-            List<String> scopes = Arrays.asList("signature", "impersonation");
-            byte[] privateKeyBytes = rsaKeyFile.getInputStream().readAllBytes();
+            ApiClient apiClient = new ApiClient(basePath);  //basepath means API Endpoint * endpoint for accesing DocuSign REST features
+            apiClient.setOAuthBasePath(authServer);         //authServer means Authorization Server..//authServer is the domain that handles JWT OAuth authentication. continue to next line
+            List<String> scopes = Arrays.asList("signature", "impersonation");                       //You send your private key and request an access token from this server.
+            byte[] privateKeyBytes = rsaKeyFile.getInputStream().readAllBytes();//impersonations the person who is sending the mail.
             OAuth.OAuthToken oAuthToken = apiClient.requestJWTUserToken(clientId, userId, scopes, privateKeyBytes, 3600);
             String accessToken = oAuthToken.getAccessToken();
 
