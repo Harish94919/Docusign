@@ -47,7 +47,7 @@ public class DocusignService {
             apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
 
             SignHere signHere = new SignHere()
-                    .documentId("1")
+                    .documentId("1")  //This defines where the signer needs to sign on the document (on page 1, at given coordinates).
                     .pageNumber("1")
                     .xPosition("456")
                     .yPosition("434");
@@ -55,19 +55,19 @@ public class DocusignService {
             Tabs tabs = new Tabs().signHereTabs(Arrays.asList(signHere));
 
             Signer signer = new Signer()
-                    .email(signerEmail)
-                    .name(signerName)
+                    .email(signerEmail)  //Assigns the signer with
+                    .name(signerName)    //email, name, and signature location (tabs).
                     .recipientId("1")
                     .tabs(tabs);
 
             CarbonCopy cc = new CarbonCopy()
                     .email("harishrajaboina9491@gmail.com")
-                    .name("Diligent")
-                    .recipientId("2");
+                    .name("Diligent")    //This is a person who gets a copy of the document by email.
+                    .recipientId("2");  //This person will just get a copy of the completed envelope.ex:manager.
 
             Recipients recipients = new Recipients();
-            recipients.signers(Arrays.asList(signer));
-            recipients.carbonCopies(Arrays.asList(cc));
+            recipients.signers(Arrays.asList(signer));  //recipients will have both signer and carboncopy
+            recipients.carbonCopies(Arrays.asList(cc)); //this recipients object is attached to the EnvelopeDefinition.
 
             String fileName = file.getOriginalFilename();
             if (fileName == null) throw new IllegalAccessException("Invalid file");
@@ -88,14 +88,15 @@ public class DocusignService {
             EnvelopeDefinition envelope = new EnvelopeDefinition()
                     .emailSubject("Please sign this document set")
                     .status("sent")
-                    .recipients(recipients)
-                    .documents(Arrays.asList(doc));
+                    .recipients(recipients) //recipients means details of signer and carbon copy means
+                    .documents(Arrays.asList(doc)); //receives the document of signed or unsigned
 
-            EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
+            EnvelopesApi envelopesApi = new EnvelopesApi(apiClient); //send envelope by docusignAPI
             EnvelopeSummary results = envelopesApi.createEnvelope(accountId, envelope);
 
             return results.getEnvelopeId();
-        } catch (ApiException ex) {
+        }
+        catch (ApiException ex) {
             if (ex.getMessage().contains("consent_required")) {
                 return "Consent required. Visit:\nhttps://account-d.docusign.com/oauth/auth?response_type=code&scope=impersonation%20signature&client_id="
                         + clientId + "&redirect_uri=" + "https://developers.docusign.com/platform/auth/consent";
